@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recart · Top Clients USA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: #060d1e; }
@@ -20,27 +22,32 @@
     padding: 4% 4%;
     border-right: 1px solid rgba(255,255,255,0.06);
   }
-  .logo-wrap { margin-bottom: clamp(10px,1.5vh,18px); }
-  .logo-wrap svg { height: clamp(18px,2.2vw,30px); width: auto; }
+  .logo-wrap { margin-bottom: clamp(14px,2vh,28px); }
+  .logo-wrap svg { height: clamp(20px,2.6vw,38px); width: auto; }
+  .top-label {
+    font-size: clamp(10px,1.1vw,15px); font-weight: 700;
+    letter-spacing: 0.2em; color: #0375FF;
+    text-transform: uppercase; margin-top: 10px; margin-bottom: clamp(12px,2vh,24px);
+  }
   .section-title {
-    font-size: clamp(22px,3.8vw,52px); font-weight: 900; color: #fff;
+    font-size: clamp(28px,4.5vw,62px); font-weight: 900; color: #fff;
     line-height: 0.9; text-transform: uppercase; letter-spacing: -0.03em;
-    margin-bottom: clamp(10px,1.5vh,18px);
+    margin-bottom: clamp(12px,1.8vh,22px);
   }
   .brand-list { flex: 1; display: flex; flex-direction: column; gap: 0; overflow: hidden; }
   .brand-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: clamp(3px,0.5vh,6px) 8px;
+    display: flex; align-items: center; gap: 10px;
+    padding: clamp(4px,0.6vh,8px) 10px;
     border-radius: 4px; transition: all 0.4s ease;
   }
-  .brand-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: transform 0.3s; }
+  .brand-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; transition: transform 0.3s; }
   .brand-name-lbl {
-    font-size: clamp(9px,0.9vw,13px); font-weight: 600;
+    font-size: clamp(11px,1.1vw,16px); font-weight: 600;
     color: rgba(255,255,255,0.38); text-transform: uppercase;
     letter-spacing: 0.03em; transition: color 0.3s; flex: 1;
   }
   .brand-city-lbl {
-    font-size: clamp(7px,0.72vw,10px); color: rgba(255,255,255,0.2);
+    font-size: clamp(9px,0.88vw,13px); color: rgba(255,255,255,0.2);
     transition: color 0.3s; white-space: nowrap;
   }
   .brand-item.active { background: rgba(3,117,255,0.1); }
@@ -48,8 +55,8 @@
   .brand-item.active .brand-dot { transform: scale(1.4); }
   .brand-item.active .brand-city-lbl { color: #0375FF; }
   .clock {
-    font-size: clamp(8px,0.78vw,11px); color: rgba(255,255,255,0.15);
-    letter-spacing: 0.05em; margin-top: auto; padding-top: 6px;
+    font-size: clamp(14px,1.6vw,22px); color: rgba(255,255,255,0.72);
+    letter-spacing: 0.06em; margin-top: auto; padding-top: 6px;
   }
   .map-area { position: relative; z-index: 1; overflow: hidden; }
 </style>
@@ -63,34 +70,10 @@
     <div class="clock" id="clock-el"></div>
   </div>
   <div class="map-area">
-    <svg id="usa-svg" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-      <rect width="800" height="500" fill="#060d1e"/>
-      <path d="M155,95 L680,95 L720,145 L735,220 L700,310 L660,355 L590,380 L510,395 L420,390 L340,375 L265,345 L210,300 L175,245 L155,175 Z" fill="#0d1e38" stroke="rgba(3,117,255,0.12)" stroke-width="1.5"/>
-      <path d="M590,355 L600,380 L595,415 L580,430 L565,415 L570,385 Z" fill="#0d1e38" stroke="rgba(3,117,255,0.12)" stroke-width="1"/>
-      <path d="M420,310 L480,315 L490,350 L470,380 L440,385 L420,370 L400,340 Z" fill="#0d1e38" stroke="rgba(3,117,255,0.12)" stroke-width="1"/>
-      <line x1="280" y1="95" x2="265" y2="375" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="400" y1="95" x2="390" y2="390" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="520" y1="95" x2="510" y2="395" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="640" y1="95" x2="620" y2="355" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="155" y1="230" x2="735" y2="240" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <line x1="165" y1="310" x2="700" y2="320" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <text x="192" y="165" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">WA</text>
-      <text x="190" y="205" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">OR</text>
-      <text x="183" y="270" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">CA</text>
-      <text x="288" y="262" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">UT</text>
-      <text x="258" y="328" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">AZ</text>
-      <text x="358" y="297" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">KS</text>
-      <text x="370" y="340" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">OK</text>
-      <text x="390" y="378" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">TX</text>
-      <text x="452" y="260" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">MO</text>
-      <text x="537" y="260" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">KY</text>
-      <text x="537" y="297" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">TN</text>
-      <text x="598" y="230" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">OH</text>
-      <text x="613" y="267" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">VA</text>
-      <text x="610" y="302" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">NC</text>
-      <text x="588" y="347" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">GA</text>
-      <text x="585" y="398" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">FL</text>
-      <text x="665" y="160" fill="rgba(255,255,255,0.07)" font-size="10" font-family="Inter,sans-serif" font-weight="700">NY</text>
+    <svg id="usa-svg" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
+      <rect width="960" height="600" fill="#060d1e"/>
+      <g id="states" fill="#0d1e38" stroke="rgba(3,117,255,0.18)" stroke-width="0.7" stroke-linejoin="round"></g>
+      <g id="state-labels" fill="rgba(255,255,255,0.13)" font-family="Inter,sans-serif" font-weight="700" font-size="11" text-anchor="middle"></g>
       <g id="pins"></g>
     </svg>
   </div>
@@ -98,30 +81,50 @@
 
 <script>
 const BRANDS = [
-  { name: 'Goose Creek',         city: 'Liberty, KY',        x: 562, y: 252, color: '#0375FF' },
-  { name: 'The Wellness Co.',    city: 'Miami, FL',           x: 578, y: 430, color: '#00B4D8' },
-  { name: 'Her Fantasy Box',     city: 'Miami, FL',           x: 602, y: 440, color: '#A855F7' },
-  { name: 'Scentiment',          city: 'Medley, FL',          x: 626, y: 430, color: '#10B981' },
-  { name: 'Rejuveen',            city: 'Boca Raton, FL',      x: 650, y: 418, color: '#FDE68A' },
-  { name: 'The Mane Attraction', city: 'Dallas, TX',          x: 432, y: 308, color: '#8B5CF6' },
-  { name: 'Burlebo',             city: 'Austin, TX',          x: 408, y: 352, color: '#F59E0B' },
-  { name: 'Canvas Beauty',       city: 'Houston, TX',         x: 435, y: 368, color: '#EC4899' },
-  { name: 'Simple Modern',       city: 'Oklahoma City, OK',   x: 374, y: 300, color: '#60A5FA' },
-  { name: 'Judith March',        city: 'Oklahoma City, OK',   x: 396, y: 314, color: '#34D399' },
-  { name: 'Carnivore Snax',      city: 'New York, NY',        x: 678, y: 175, color: '#EF4444' },
-  { name: 'KURU Footwear',       city: 'Salt Lake City, UT',  x: 278, y: 242, color: '#38BDF8' },
-  { name: 'BetterBody',          city: 'Lindon, UT',          x: 298, y: 258, color: '#93C5FD' },
-  { name: 'Made by Mary',        city: 'Columbus, OH',        x: 612, y: 226, color: '#F472B6' },
-  { name: 'Transformer Table',   city: 'Seattle, WA',         x: 196, y: 138, color: '#FBBF24' },
-  { name: 'Bambu Earth',         city: 'Portland, OR',        x: 185, y: 172, color: '#6EE7B7' },
-  { name: 'Plum Deluxe',         city: 'Portland, OR',        x: 208, y: 158, color: '#C084FC' },
-  { name: 'Sweet Cookies',       city: 'Chicago, IL',         x: 546, y: 210, color: '#F87171' },
-  { name: 'The Sash Bag',        city: 'Charlotte, NC',       x: 632, y: 296, color: '#A78BFA' },
-  { name: 'Walk Fulton',         city: 'Atlanta, GA',         x: 586, y: 320, color: '#4ADE80' },
-  { name: 'The Clothes Rak',     city: 'Nashville, TN',       x: 564, y: 280, color: '#FB923C' },
-  { name: 'Poppy Pine',          city: 'Denver, CO',          x: 340, y: 236, color: '#F9A8D4' },
-  { name: 'Holistic Goddess',    city: 'Phoenix, AZ',         x: 265, y: 315, color: '#86EFAC' },
+  { name: 'Carnivore Snax',        city: 'Lewis Center, OH',      x: 646, y: 236, color: '#EF4444' },
+  { name: 'Burlebo',               city: 'Austin, TX',            x: 388, y: 420, color: '#F59E0B' },
+  { name: 'Made by Mary',          city: 'Bluffdale, UT',         x: 276, y: 278, color: '#F472B6' },
+  { name: 'The Wellness Company',  city: 'Boca Raton, FL',        x: 688, y: 448, color: '#00B4D8' },
+  { name: 'Simple Modern',         city: 'Moore, OK',             x: 432, y: 330, color: '#60A5FA' },
+  { name: 'Bambu Earth',           city: 'Havelock, NC',          x: 730, y: 298, color: '#6EE7B7' },
+  { name: 'Canvas Beauty',         city: 'Huntsville, AL',        x: 550, y: 340, color: '#EC4899' },
+  { name: 'Goose Creek',           city: 'Liberty, KY',           x: 606, y: 274, color: '#0375FF' },
+  { name: 'Comfrt',                city: 'Miami, FL',             x: 650, y: 466, color: '#C084FC' },
+  { name: 'The Mane Attraction',   city: 'Madison, MS',           x: 510, y: 370, color: '#8B5CF6' },
+  { name: 'Rejuveen',              city: 'San Francisco, CA',     x: 74,  y: 248, color: '#FDE68A' },
+  { name: 'Scentiment',            city: 'Houston, TX',           x: 420, y: 440, color: '#10B981' },
+  { name: 'Her Fantasy Box',       city: 'Tampa, FL',             x: 626, y: 426, color: '#A855F7' },
+  { name: 'Judith March',          city: 'Santa Rosa Beach, FL',  x: 550, y: 406, color: '#34D399' },
+  { name: 'BetterBody',            city: 'Lindon, UT',            x: 286, y: 260, color: '#93C5FD' },
 ];
+
+const FIPS = {
+  '01':'AL','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE',
+  '12':'FL','13':'GA','16':'ID','17':'IL','18':'IN','19':'IA','20':'KS',
+  '21':'KY','22':'LA','23':'ME','24':'MD','25':'MA','26':'MI','27':'MN',
+  '28':'MS','29':'MO','30':'MT','31':'NE','32':'NV','33':'NH','34':'NJ',
+  '35':'NM','36':'NY','37':'NC','38':'ND','39':'OH','40':'OK','41':'OR',
+  '42':'PA','44':'RI','45':'SC','46':'SD','47':'TN','48':'TX','49':'UT',
+  '50':'VT','51':'VA','53':'WA','54':'WV','55':'WI','56':'WY'
+};
+
+const LATLON = {
+  'Carnivore Snax':       [-82.99, 40.18],
+  'Burlebo':              [-97.74, 30.27],
+  'Made by Mary':         [-111.94, 40.49],
+  'The Wellness Company': [-80.08, 26.35],
+  'Simple Modern':        [-97.49, 35.34],
+  'Bambu Earth':          [-76.90, 34.88],
+  'Canvas Beauty':        [-86.59, 34.73],
+  'Goose Creek':          [-84.94, 37.32],
+  'Comfrt':               [-80.19, 25.77],
+  'The Mane Attraction':  [-90.11, 32.46],
+  'Rejuveen':             [-122.42, 37.77],
+  'Scentiment':           [-95.37, 29.76],
+  'Her Fantasy Box':      [-82.46, 27.95],
+  'Judith March':         [-86.24, 30.39],
+  'BetterBody':           [-111.72, 40.34],
+};
 
 let activeIdx = 0;
 
@@ -159,34 +162,28 @@ function renderAll() {
     ci.setAttribute('fill','#fff');
     grp.appendChild(ci);
     if (isActive) {
-      const pillW = br.city.length * 5.2 + 16;
+      const nameW = br.name.length * 7 + 20;
+      const cityW = br.city.length * 6 + 16;
+      const pillW = Math.max(nameW, cityW);
       const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      rect.setAttribute('x', br.x - pillW/2); rect.setAttribute('y', br.y - 30);
-      rect.setAttribute('width', pillW); rect.setAttribute('height', 16);
-      rect.setAttribute('rx','4'); rect.setAttribute('fill', br.color); rect.setAttribute('opacity','0.92');
+      rect.setAttribute('x', br.x - pillW/2); rect.setAttribute('y', br.y - 52);
+      rect.setAttribute('width', pillW); rect.setAttribute('height', 36);
+      rect.setAttribute('rx','5'); rect.setAttribute('fill', br.color); rect.setAttribute('opacity','0.95');
       grp.appendChild(rect);
+      const tn = document.createElementNS('http://www.w3.org/2000/svg','text');
+      tn.setAttribute('x',br.x); tn.setAttribute('y',br.y-34);
+      tn.setAttribute('text-anchor','middle'); tn.setAttribute('fill','#fff');
+      tn.setAttribute('font-size','11'); tn.setAttribute('font-weight','900');
+      tn.setAttribute('font-family','Inter,sans-serif');
+      tn.textContent = br.name;
+      grp.appendChild(tn);
       const tc = document.createElementNS('http://www.w3.org/2000/svg','text');
-      tc.setAttribute('x',br.x); tc.setAttribute('y',br.y-17);
-      tc.setAttribute('text-anchor','middle'); tc.setAttribute('fill','#fff');
-      tc.setAttribute('font-size','8'); tc.setAttribute('font-weight','700');
+      tc.setAttribute('x',br.x); tc.setAttribute('y',br.y-20);
+      tc.setAttribute('text-anchor','middle'); tc.setAttribute('fill','rgba(255,255,255,0.85)');
+      tc.setAttribute('font-size','9'); tc.setAttribute('font-weight','600');
       tc.setAttribute('font-family','Inter,sans-serif');
       tc.textContent = br.city;
       grp.appendChild(tc);
-      const tn = document.createElementNS('http://www.w3.org/2000/svg','text');
-      tn.setAttribute('x',br.x); tn.setAttribute('y',br.y+22);
-      tn.setAttribute('text-anchor','middle'); tn.setAttribute('fill','#fff');
-      tn.setAttribute('font-size','9'); tn.setAttribute('font-weight','900');
-      tn.setAttribute('font-family','Inter,sans-serif');
-      tn.textContent = br.name;
-      grp.appendChild(tn);
-    } else {
-      const tn = document.createElementNS('http://www.w3.org/2000/svg','text');
-      tn.setAttribute('x',br.x); tn.setAttribute('y',br.y-9);
-      tn.setAttribute('text-anchor','middle'); tn.setAttribute('fill','rgba(255,255,255,0.4)');
-      tn.setAttribute('font-size','6.5'); tn.setAttribute('font-weight','600');
-      tn.setAttribute('font-family','Inter,sans-serif');
-      tn.textContent = br.name;
-      grp.appendChild(tn);
     }
     g.appendChild(grp);
   });
@@ -194,11 +191,54 @@ function renderAll() {
 
 function tick() {
   const now = new Date(); const el = document.getElementById('clock-el');
-  if (el) el.textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  if (el) el.textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 
-renderAll(); tick();
-setInterval(() => { activeIdx = (activeIdx+1)%BRANDS.length; renderAll(); }, 3000);
+const proj = d3.geoAlbers()
+  .center([-0.6, 38.7])
+  .rotate([96, 0])
+  .parallels([29.5, 45.5])
+  .scale(1070)
+  .translate([480, 250]);
+const pathGen = d3.geoPath().projection(proj);
+
+BRANDS.forEach(br => {
+  const ll = LATLON[br.name];
+  if (ll) { const pt = proj(ll); if (pt) { br.x = Math.round(pt[0]); br.y = Math.round(pt[1]); } }
+});
+
+tick();
+
+fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+  .then(r => r.json())
+  .then(us => {
+    const SKIP = new Set(['02','15']);
+    const features = topojson.feature(us, us.objects.states).features
+      .filter(f => !SKIP.has(f.id.toString().padStart(2,'0')));
+
+    const statesG = document.getElementById('states');
+    features.forEach(f => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d', pathGen(f));
+      statesG.appendChild(p);
+    });
+
+    const labelsG = document.getElementById('state-labels');
+    features.forEach(f => {
+      const abbr = FIPS[f.id.toString().padStart(2,'0')];
+      if (!abbr) return;
+      const c = pathGen.centroid(f);
+      if (!c || isNaN(c[0])) return;
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', c[0]); t.setAttribute('y', c[1] + 4);
+      t.textContent = abbr;
+      labelsG.appendChild(t);
+    });
+
+    renderAll();
+    setInterval(() => { activeIdx = (activeIdx+1)%BRANDS.length; renderAll(); }, 3000);
+  });
+
 setInterval(tick, 30000);
 setTimeout(() => location.reload(), 60 * 60 * 1000);
 </script>
